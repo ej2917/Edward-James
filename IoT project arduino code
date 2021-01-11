@@ -1,0 +1,321 @@
+// NOTE - this code is an amalgamation of borrowed code from other sources online and code writen by myself, 
+//as well as instructions from the InitalState website on how to connect to their server 
+
+#include <Bridge.h>
+#include <Process.h>
+#include <SPI.h>
+#include <SD.h>
+
+const int ACPin = A2;//set arduino signal read pin
+#define ACTectionRange 150;    //set Non-invasive AC Current Sensor detection range 
+const int ACPin2 = A1;//set arduino signal read pin
+#define ACTectionRange2 180;    //set Non-invasive AC Current Sensor detection range 
+
+#define VREF 5.0
+#define VREF2 5.0
+
+float readACCurrentValue1()
+{
+  float ACCurrtntValue = 0;
+  float peakVoltage = 0;  
+  float voltageVirtualValue = 0;  //Vrms
+  for (int i = 0; i < 5; i++)
+  {
+    peakVoltage += analogRead(ACPin);   //read peak voltage
+    delay(1);
+  }
+  peakVoltage = peakVoltage / 5;   
+  voltageVirtualValue = peakVoltage * 0.707;    //change the peak voltage to the Virtual Value of voltage
+  /*The circuit is amplified by 2 times, so it is divided by 2.*/
+  voltageVirtualValue = (voltageVirtualValue / 1024 * VREF ) / 2;  
+  ACCurrtntValue = voltageVirtualValue * ACTectionRange;
+  return ACCurrtntValue;
+}
+
+float ReadCalcValue1()
+{
+  float CalcValue = 0;
+  float ACCurrtntValue = 0;
+  float peakVoltage = 0;  
+  float voltageVirtualValue = 0;  //Vrms
+  for (int i = 0; i < 5; i++)
+  {
+    peakVoltage += analogRead(ACPin);   //read peak voltage
+    delay(1);
+  }
+  peakVoltage = peakVoltage / 5;   
+  voltageVirtualValue = peakVoltage * 0.707;    //change the peak voltage to the Virtual Value of voltage
+  /*The circuit is amplified by 2 times, so it is divided by 2.*/
+  voltageVirtualValue = (voltageVirtualValue / 1024 * VREF ) / 2;  
+  ACCurrtntValue = voltageVirtualValue * ACTectionRange;
+  
+  if(ACCurrtntValue > 9.45){
+    CalcValue = 2;
+  }
+  if (ACCurrtntValue > 6.00){
+    CalcValue = 1;
+  }
+  else {
+    CalcValue = 0;
+    }
+  return CalcValue;
+}
+
+String ReadOnOff1()
+{
+  String OnOff1;
+  float ACCurrtntValue = 0;
+  float peakVoltage = 0;  
+  float voltageVirtualValue = 0;  //Vrms
+  for (int i = 0; i < 5; i++)
+  {
+    peakVoltage += analogRead(ACPin);   //read peak voltage
+    delay(1);
+  }
+  peakVoltage = peakVoltage / 5;   
+  voltageVirtualValue = peakVoltage* 0.707;    //change the peak voltage to the Virtual Value of voltage
+  /*The circuit is amplified by 2 times, so it is divided by 2.*/
+  voltageVirtualValue = (voltageVirtualValue / 1024 * VREF2 ) / 2;  
+  ACCurrtntValue = voltageVirtualValue * ACTectionRange2;
+  
+  if(ACCurrtntValue > 9.45){
+    OnOff1 = "Gran On";
+  }
+  if (ACCurrtntValue > 6.00){
+    OnOff1 = "Gran Idle";
+  }
+  else {
+    CalcValue1 = "Gran Off";
+    }
+  return OnOff1;
+}
+
+
+float ReadCalcValue2()
+{
+  float CalcValue2 = 0;
+  float ACCurrtntValue = 0;
+  float peakVoltage = 0;  
+  float voltageVirtualValue = 0;  //Vrms
+  for (int i = 0; i < 5; i++)
+  {
+    peakVoltage += analogRead(ACPin2);   //read peak voltage
+    delay(1);
+  }
+  peakVoltage = peakVoltage / 5;   
+  voltageVirtualValue = peakVoltage * 0.707;    //change the peak voltage to the Virtual Value of voltage
+  /*The circuit is amplified by 2 times, so it is divided by 2.*/
+  voltageVirtualValue = (voltageVirtualValue / 1024 * VREF ) / 2;  
+  ACCurrtntValue = voltageVirtualValue * ACTectionRange;
+  
+  if(ACCurrtntValue > 9.45){
+    CalcValue2 = 2;
+  }
+  if (ACCurrtntValue > 6.00){
+    CalcValue2 = 1;
+  }
+  else {
+    CalcValue2 = 0;
+    }
+  return CalcValue2;
+}
+
+
+
+
+float readACCurrentValue2()
+{
+  float ACCurrtntValue2 = 0;
+  float peakVoltage2 = 0;  
+  float voltageVirtualValue2 = 0;  //Vrms
+  for (int i = 0; i < 5; i++)
+  {
+    peakVoltage2 += analogRead(ACPin2);   //read peak voltage
+    delay(1);
+  }
+  peakVoltage2 = peakVoltage2 / 5;   
+  voltageVirtualValue2 = peakVoltage2 * 0.707;    //change the peak voltage to the Virtual Value of voltage
+  /*The circuit is amplified by 2 times, so it is divided by 2.*/
+  voltageVirtualValue2 = (voltageVirtualValue2 / 1024 * VREF2 ) / 2;  
+  ACCurrtntValue2 = voltageVirtualValue2 * ACTectionRange2;
+  return ACCurrtntValue2;
+}
+
+
+
+String ReadOnOff2()
+{
+  String OnOff2;
+  float ACCurrtntValue2 = 0;
+  float peakVoltage2 = 0;  
+  float voltageVirtualValue2 = 0;  //Vrms
+  for (int i = 0; i < 5; i++)
+  {
+    peakVoltage2 += analogRead(ACPin2);   //read peak voltage
+    delay(1);
+  }
+  peakVoltage2 = peakVoltage2 / 5;   
+  voltageVirtualValue2 = peakVoltage2 * 0.707;    //change the peak voltage to the Virtual Value of voltage
+  /*The circuit is amplified by 2 times, so it is divided by 2.*/
+  voltageVirtualValue2 = (voltageVirtualValue2 / 1024 * VREF2 ) / 2;  
+  ACCurrtntValue2 = voltageVirtualValue2 * ACTectionRange2;
+  //ON
+  if(ACCurrtntValue2 > 9.45){
+    OnOff2 = "Shred On";
+  }//IDLE
+  if (ACCurrtntValue2 > 6.00){
+    OnOff2 = "Shred Idle";
+  }//OFF
+  else {
+    CalcValue2 = "Shred Odd";
+    }
+  return OnOff2;
+}
+
+// setting up the stream to online server 
+// URL to IS Bucket API
+String ISBucketURL = "https://groker.initialstate.com/api/buckets";
+// URL to IS Event API
+String ISEventURL = "https://groker.initialstate.com/api/events";
+// Access key:
+String accessKey = "ist_2cjFTzu_vPMaMgl8csJ03XQLl45KDfXN";
+// Bucket key:
+String bucketKey = "3DY3H7Q86DLV";
+// Bucket name:
+String bucketName = "IoT Sensing";
+// How many 
+const int NUM_SIGNALS = 4;
+// Name of the signal
+String signalName[NUM_SIGNALS] = {"GranRaw", "GranState","ShredRaw", "ShredState"};
+// The array that is sent to the online server bucket 
+String signalData[NUM_SIGNALS];
+
+
+// This only runs once at the very beginning
+void setup() 
+{
+  Bridge.begin();
+  Serial.begin(9600);
+
+  while (!Serial);
+    // Post Bucket
+    Serial.println("Posting Bucket!");
+    postBucket();
+}
+
+
+void loop()
+{  
+  // reading values to be sent from the sensors 
+  float ACCurrentValue1 = readACCurrentValue1();
+  float ACCurrentValue2 = readACCurrentValue2();
+  float CalcValue1 = ReadCalcValue1();
+  float CalcValue2 = ReadCalcValue2();
+  String OnOff1 = ReadOnOff1();
+  String OnOff2 = ReadOnOff2(); 
+  
+  // adding the obtained values to the signal which will be sent to the online server 
+  signalData[0] = String(ACCurrentValue1);
+  signalData[1] = String(CalcValue1)+ String(" A");
+  signalData[2] = String(ACCurrentValue2);
+  signalData[3] = String(CalcValue2)+ String(" A");
+  signalData[4] = String(OnOff1);
+  signalData[5] = String(OnOff2);
+
+  
+  // Post Data
+  Serial.println("Posting Data!");
+  // Sebd Data to be streamed
+  postData(); 
+  // Sample every 3 minutes - change this to change sampaling rate
+  delay(180000);
+}
+
+
+//Data bucket creation
+void postBucket()
+{
+  // Initialize the process
+  Process isbucket;
+
+  isbucket.begin("curl");
+  isbucket.addParameter("-k");
+  isbucket.addParameter("-v");
+  isbucket.addParameter("-X");
+  isbucket.addParameter("POST");
+  isbucket.addParameter("-H");
+  isbucket.addParameter("Content-Type:application/json");
+  isbucket.addParameter("-H");
+  isbucket.addParameter("Accept-Version:0.0.1");
+
+  // IS Access Key Header
+  isbucket.addParameter("-H");
+  isbucket.addParameter("X-IS-AccessKey:" + accessKey);
+
+  // IS Bucket Key Header
+  isbucket.addParameter("-d");
+  isbucket.addParameter("{\"bucketKey\": \"" + bucketKey + "\", \"bucketName\": \"" + bucketName + "\"}");
+  
+  isbucket.addParameter("https://groker.initialstate.com/api/buckets");
+  
+  // Run the process
+  isbucket.run();
+
+  Serial.flush();
+}
+
+void postData()
+{
+  // Initialize the process
+  Process isstreamer;
+
+  isstreamer.begin("curl");
+  isstreamer.addParameter("-k");
+  isstreamer.addParameter("-v");
+  isstreamer.addParameter("-X");
+  isstreamer.addParameter("POST");
+  isstreamer.addParameter("-H");
+  isstreamer.addParameter("Content-Type:application/json");
+  isstreamer.addParameter("-H");
+  isstreamer.addParameter("Accept-Version:0.0.1");
+
+  // IS Access Key Header
+  isstreamer.addParameter("-H");
+  isstreamer.addParameter("X-IS-AccessKey:" + accessKey);
+
+  // IS Bucket Key Header
+  // Note that bucketName is not needed here
+  isstreamer.addParameter("-H");
+  isstreamer.addParameter("X-IS-BucketKey:" + bucketKey);
+
+  isstreamer.addParameter("-d");
+
+  // Initialize a string to hold our signal data
+  String jsonData;
+
+  jsonData = "[";
+
+  for (int i=0; i<NUM_SIGNALS; i++)
+  {
+    jsonData += "{\"key\": \"" + signalName[i] + "\", \"value\": \"" + signalData[i] + "\"}";
+
+    if (i != NUM_SIGNALS - 1)
+    {
+      jsonData += ",";
+    }
+  }
+
+  jsonData += "]";
+
+  isstreamer.addParameter(jsonData);
+
+  isstreamer.addParameter("https://groker.initialstate.com/api/events");
+
+  Serial.print("Sending data: ");
+  Serial.println(jsonData);
+
+  // Run the process
+  isstreamer.run();
+
+  Serial.flush();
+}
