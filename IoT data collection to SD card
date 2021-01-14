@@ -1,0 +1,119 @@
+//This code was used to collect he inital data for a period of 1 week, with a goal of validating the insight collection method
+#include <SPI.h>
+#include <SD.h>
+
+File myFile;
+
+String filename = "ac.csv" ;
+int count = 0;
+String Name = "ac";
+String dayi = "i";
+String dayv = "v";
+
+//float ACCurrentValue1 = 0;
+//float ACCurrentValue2 = 0;
+
+
+const int ACPin = A2;
+#define ACTectionRange 20;
+
+const int ACPin2 = A2;//set arduino signal read pin
+#define ACTectionRange2 20;    //set Non-invasive AC Current Sensor tection range (5A,10A,20A)
+
+
+// VREF: Analog reference
+// For Arduino UNO, Leonardo and mega2560, etc. change VREF to 5
+// For Arduino Zero, Due, MKR Family, ESP32, etc. 3V3 controllers, change VREF to 3.3
+#define VREF 5.0
+#define VREF2 5.0
+
+float readACCurrentValue1()
+{
+  float ACCurrtntValue = 0;
+  float peakVoltage = 0;  
+  float voltageVirtualValue = 0;  //Vrms
+  for (int i = 0; i < 5; i++)
+  {
+    peakVoltage += analogRead(ACPin);   //read peak voltage
+    delay(1);
+  }
+  peakVoltage = peakVoltage / 5;   
+  voltageVirtualValue = peakVoltage * 0.707;  
+  /*The circuit is amplified by 2 times, so it is divided by 2.*/
+  voltageVirtualValue = (voltageVirtualValue / 1024 * VREF ) / 2;  
+  ACCurrtntValue = voltageVirtualValue * ACTectionRange;
+  return ACCurrtntValue;
+}
+
+float readACCurrentValue2()
+{
+  float ACCurrtntValue2 = 0;
+  float peakVoltage2 = 0;  
+  float voltageVirtualValue2 = 0;  //Vrms
+  for (int i = 0; i < 5; i++)
+  {
+    peakVoltage2 += analogRead(ACPin2);   //read peak voltage
+    delay(1);
+  }
+  peakVoltage2 = peakVoltage2 / 5;   
+  voltageVirtualValue2 = peakVoltage2 * 0.707;    //change the peak voltage to the Virtual Value of voltage
+  /*The circuit is amplified by 2 times, so it is divided by 2.*/
+  voltageVirtualValue2 = (voltageVirtualValue2 / 1024 * VREF2 ) / 2;  
+  ACCurrtntValue2 = voltageVirtualValue2 * ACTectionRange2;
+  return ACCurrtntValue2;
+}
+
+void save_data() {
+  Serial.println("in save loop");
+ // Serial.println(filename);
+  myFile = SD.open(filename,FILE_WRITE);
+  //myFile.println(ACCurrentValue1+","+ ACCurrentValue2);
+  myFile.println(String(count)+","+String(readACCurrentValue1())+","+String(readACCurrentValue2()));
+  myFile.close();
+}
+
+
+void setup() {
+
+  // Open serial communications and wait for port to open:
+  Serial.begin(115200);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+  Serial.print("Initializing SD card...");
+  if (!SD.begin(4)) {
+    Serial.println("initialization failed!");
+    while (1);
+  }
+  Serial.println("initialization done.");
+  
+ 
+ pinMode(13, OUTPUT);
+
+}
+
+void loop() 
+{
+  //Count set to creat a file for each 45 hour shift
+  if (count < 481){
+    float ACCurrentValue1 = readACCurrentValue1(); //read AC Current Value
+    float ACCurrentValue2 = readACCurrentValue2(); //read AC Current Value
+    Serial.print(ACCurrentValue1);
+    Serial.println(" A");
+    Serial.print(ACCurrentValue2);
+    Serial.println(" A");
+    save_data();
+   // delay(500);
+   delay(180000); // this delayt sets a samplaling rate of 3 minutes 
+    count++;
+  }else{
+    count = 0;
+    if (Name.length()<9){
+      Name = Name + dayi;
+      filename = Name + ".csv";}
+      else{
+      Name = Name + dayv;
+      filename = Name + ".csv";}
+      }
+      
+}
